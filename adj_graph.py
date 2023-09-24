@@ -1,6 +1,6 @@
 class PriorityQueue:
     def __init__(self):
-        self.queue = [] # priority  , value
+        self.queue = [] # key = priority  , value = node object
     
     def sort_queue(self):
         self.queue = sorted(self.queue, key=lambda x: x[0])
@@ -18,7 +18,7 @@ class PriorityQueue:
     def get_queue(self):
         return self.queue
     
-    def count(self, node):
+    def count(self, node): 
         return self.queue.count(node)
     
     def remove_occurrences_except_min(self, node_value):
@@ -154,7 +154,7 @@ class Graph:
         while cur_node.prev is not None:
             cost += cur_node.adj_nodes[cur_node.prev]
             cur_node = cur_node.prev
-            return cost
+        return cost
 
     def ucs(self, start_node, end_node):
         if (not isinstance(start_node, Node)):
@@ -162,6 +162,7 @@ class Graph:
 
         if (not isinstance(end_node, Node)):
             end_node = self.cities[end_node]
+
         visited_nodes = set()
         frontier = PriorityQueue()  # (priority, node)
 
@@ -182,12 +183,106 @@ class Graph:
                     frontier.put((current_cost, adj_node))
 
                 if frontier.count(adj_node) > 1:
+                    print(frontier.count(adj_node))
                     frontier.remove_occurrences_except_min(adj_node.value)
         return "no path"
 
 
 
+    # *************************************
+    # gbfs CODE
+    # *************************************
 
+    def getSld(self,city):
+        cities =  {'Arad':366,
+                    'Bucharest':0,
+                    'Craiova':160,
+                    'Dobreta':242,
+                    'Eforie':161,
+                    'Fagaras':176,
+                    'Giurgiu':77,
+                    'Hirsova':151,
+                    'Iasi':226,
+                    'Lugoj':244,
+                    'Mehadia':241,
+                    'Neamt':234,
+                    'Oradea':380,
+                    'Pitesti':100,
+                    'Rimnicu Vilcea':193,
+                    'Sibiu':253,
+                    'Timisoara':329,
+                    'Urziceni':80,
+                    'Vaslui':199,
+                    'Zerind':374
+                   }
+        return cities[city]
+
+    def gbfs(self, start_node , end_node):
+        if (not isinstance(start_node, Node)):
+            start_node = self.cities[start_node]
+
+        if (not isinstance(end_node, Node)):
+            end_node = self.cities[end_node]
+            
+        visited_nodes = set()
+        frontier = PriorityQueue()  # (priority, node)
+        
+        frontier.put((0, start_node))
+        while (frontier):
+            current_cost, current_node = frontier.get()
+            visited_nodes.add(current_node)
+
+            if current_node == end_node:
+                return self.sol_found(start_node, current_node)
+
+            for adj_node in current_node.adj_nodes:
+                if adj_node not in visited_nodes:
+                    adj_node.prev = current_node
+                    # compute cost and put it in frontier (priority queue)
+                    current_cost = self.getSld(adj_node.value)
+                    # print(adj_node.value)
+                    frontier.put((current_cost, adj_node))
+
+                if frontier.count(adj_node) > 1:
+                    print(frontier.count(adj_node))
+                    frontier.remove_occurrences_except_min(adj_node.value)
+
+        
+
+    # *************************************
+    # A CODE
+    # *************************************
+
+    def Astar(self, start_node , end_node):
+        if (not isinstance(start_node, Node)):
+            start_node = self.cities[start_node]
+
+        if (not isinstance(end_node, Node)):
+            end_node = self.cities[end_node]
+            
+        visited_nodes = set()
+        frontier = PriorityQueue()  # (priority, node)
+        
+        frontier.put((0, start_node))
+        while (frontier):
+            current_cost, current_node = frontier.get()
+            visited_nodes.add(current_node)
+
+            if current_node == end_node:
+                return self.sol_found(start_node, current_node)
+
+            for adj_node in current_node.adj_nodes:
+                if adj_node not in visited_nodes:
+                    adj_node.prev = current_node
+                    # compute cost and put it in frontier (priority queue)
+                    current_cost = self.getSld(adj_node.value)
+                    current_cost += self.compute_cost(adj_node)
+                    # print(adj_node.value)
+                    frontier.put((current_cost, adj_node))
+
+                if frontier.count(adj_node) > 1:
+                    print(frontier.count(adj_node))
+                    frontier.remove_occurrences_except_min(adj_node.value)
 
 
 
