@@ -69,19 +69,22 @@ sld_to_Bucharest = {'Arad':366,
 
 
 
-
-
 graph.add_cities(locations)
 
 # for city in graph.cities:
 #     print(city)
     
-print(graph.dfs("Oradea","Bucharest"))
+print(f"DFS path: {graph.dfs('Arad', 'Bucharest')}")
+graph.reset_prev_pointers()
 
-print(graph.ucs("Arad","Bucharest"))
+print(f"BFS path: {graph.bfs('Arad', 'Bucharest')}")
+graph.reset_prev_pointers()
 
-# print(graph.gbfs("Arad","Bucharest"))
+print(f"UCS path: {graph.ucs('Arad', 'Bucharest')}")
+graph.reset_prev_pointers()
 
-# print(graph.Astar("Arad","Bucharest"))
+print(f"GBFS path: {graph.gbfs('Arad', 'Bucharest')}")
+graph.reset_prev_pointers()
 
-
+print(f"A* path: {graph.Astar('Arad', 'Bucharest')}")
+graph.reset_prev_pointers()

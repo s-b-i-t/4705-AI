@@ -64,8 +64,13 @@ class Graph:
                     Destination_Node = self.cities[neighbor]
                     self.add_edge(Source_Node,Destination_Node,locations[city][neighbor])
         
-
     
+    #Reset Node pointers to run next algo
+    def reset_prev_pointers(self):
+        for node in self.nodes:
+            node.prev = None
+
+
     # traverse previous nodes, format, then return path as string
     def sol_found(self,start_node, node):
         goal_node = node
@@ -128,22 +133,42 @@ class Graph:
         
         if (not isinstance(end_node, Node)):
             end_node = self.cities[end_node]
+
         visited_nodes = set()
         frontier = []
-        visited_nodes.add(start_node)
+
+        visited_nodes.add(start_node.value)
         frontier.append(start_node)
+
         while (frontier): # while frontier is not empty
+            print("**************************")
+            
+            print("visited: ")
+            [print(n) for n in visited_nodes]
+            print("\n")
+            print("frontier: ")
+            [print(n.value) for n in frontier]
+            
             current_node = frontier.pop() #current_node = frontier.get() get last city in frontier (only difference between bfs & dfs)
-    
+            
+            
+            print(f"cur:{current_node.value}")
+            print("**************************")
+            if current_node.value not in visited_nodes:
+                visited_nodes.add(adj_node.value) #visited_nodes.add(neighbor_node)
+
+
             for adj_node in current_node.adj_nodes: 
-                if adj_node not in visited_nodes:
+                if adj_node.value not in visited_nodes:
                     adj_node.prev = current_node
+                    if adj_node not in frontier:
+                        frontier.append(adj_node) #frontier.put(neighbor_node)
+
                 if adj_node == end_node: #if neighbor_node is goal state
                     return self.sol_found(start_node,adj_node)
-                #visited_nodes.add(neighbor_node)
-                visited_nodes.add(adj_node)
-                #frontier.put(neighbor_node)
-                frontier.append(adj_node)
+                
+                
+
         return "no path"
     
     # *************************************
@@ -151,40 +176,81 @@ class Graph:
     # *************************************
     def compute_cost(self, cur_node):
         cost = 0
-        while cur_node.prev is not None:
-            cost += cur_node.adj_nodes[cur_node.prev]
-            cur_node = cur_node.prev
+        tmp = cur_node
+        while tmp.prev is not None:
+            cost += tmp.adj_nodes[tmp.prev]
+            tmp = tmp.prev
         return cost
 
-    def ucs(self, start_node, end_node):
-        if (not isinstance(start_node, Node)):
-            start_node = self.cities[start_node]
+    # def ucs(self, start_node, end_node):
+    #     if (not isinstance(start_node, Node)):
+    #         start_node = self.cities[start_node]
 
-        if (not isinstance(end_node, Node)):
+    #     if (not isinstance(end_node, Node)):
+    #         end_node = self.cities[end_node]
+
+    #     visited_nodes = set()
+    #     frontier = PriorityQueue()  # (priority, node)
+
+    #     frontier.put((0, start_node))
+    #     while (frontier):  # while frontier is not empty
+    #         current_cost, current_node = frontier.get()
+    #         visited_nodes.add(current_node)
+
+        
+    #         if current_node == end_node:
+    #             return self.sol_found(start_node, current_node)
+
+    #         for adj_node in current_node.adj_nodes:
+    #             if adj_node not in visited_nodes:
+    #                 adj_node.prev = current_node
+    #                 # compute cost and put it in frontier (priority queue)
+    #                 current_cost = self.compute_cost(adj_node)
+    #                 # print(adj_node.value)
+
+    #                 #if these same node.value is in the frontier with a lower cost then update the current cost to that cost
+    #                 frontier.put((current_cost, adj_node))
+
+    #             if frontier.count(adj_node) > 1:
+    #                 print(frontier.count(adj_node))
+    #                 frontier.remove_occurrences_except_min(adj_node.value)
+    #     return "no path"
+
+
+    def ucs(self, start_node, end_node):
+        if not isinstance(start_node, Node):
+            start_node = self.cities[start_node]
+        if not isinstance(end_node, Node):
             end_node = self.cities[end_node]
 
         visited_nodes = set()
         frontier = PriorityQueue()  # (priority, node)
-
         frontier.put((0, start_node))
-        while (frontier):  # while frontier is not empty
+
+        costs = {node: float('inf') for node in self.nodes} #set all nodes to lowest priority
+        
+        costs[start_node] = 0
+
+        while frontier:  # while frontier is not empty
             current_cost, current_node = frontier.get()
+
+            if current_node in visited_nodes:
+                continue  
+
             visited_nodes.add(current_node)
 
             if current_node == end_node:
                 return self.sol_found(start_node, current_node)
 
             for adj_node in current_node.adj_nodes:
-                if adj_node not in visited_nodes:
-                    adj_node.prev = current_node
-                    # compute cost and put it in frontier (priority queue)
-                    current_cost = self.compute_cost(adj_node)
-                    # print(adj_node.value)
-                    frontier.put((current_cost, adj_node))
+                    distance = current_node.adj_nodes[adj_node]
+                    new_cost = current_cost + distance
 
-                if frontier.count(adj_node) > 1:
-                    print(frontier.count(adj_node))
-                    frontier.remove_occurrences_except_min(adj_node.value)
+                    if new_cost < costs[adj_node]: #if new cost is less than the current cost
+                        adj_node.prev = current_node 
+                        costs[adj_node] = new_cost #update the cost
+                        frontier.put((new_cost, adj_node))
+
         return "no path"
 
 
@@ -250,7 +316,7 @@ class Graph:
         
 
     # *************************************
-    # A CODE
+    # Astar CODE
     # *************************************
 
     def Astar(self, start_node , end_node):
@@ -283,13 +349,3 @@ class Graph:
                 if frontier.count(adj_node) > 1:
                     print(frontier.count(adj_node))
                     frontier.remove_occurrences_except_min(adj_node.value)
-
-
-
-
-
-
-
-
-
-
